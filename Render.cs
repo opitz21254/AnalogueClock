@@ -2,27 +2,43 @@
 
 
 int[,] shadingPattern = new int[Console.WindowHeight, Console.WindowWidth];
-
+// b moves x, a moves y in reverse
 int a = 0;
 int b = 0;
+
 while (b <= 20)
 {
+    Console.Clear();
+
     //Assign Clock Face values to multi dimensional matrix using a method
     shadingPattern = assignClockFace(shadingPattern, a, b);
 
     //Center
-    shadingPattern[9, 9 + b] = 1;
+    shadingPattern[9 + a, 9 + b] = 1;
 
-    Console.Clear();
     Console.ResetColor();
-    Console.Write("What is the width of the clock hand? ");
-    double width = Convert.ToDouble(Console.ReadLine());
+    // Console.Write("What is the width of the clock hand? ");
+    // double width = Convert.ToDouble(Console.ReadLine());
+    double width = 1;
 
-    Console.Write("What is the angle of the clock hand? ");
-    double theta = Convert.ToDouble(Console.ReadLine());
+    Console.Write("What hour is it? ");
+    int hour = Convert.ToInt32(Console.ReadLine());
 
-    Console.Write("What is the length of the clock hand? (7 or less) ");
-    double length = Convert.ToDouble(Console.ReadLine());
+    //convert hour to theta
+    double theta = 90 - (30 * hour);
+
+    // Console.Write("What is the length of the clock hand? (7 or less) ");
+    // double length = Convert.ToDouble(Console.ReadLine());
+    double length = 7;
+
+
+    // Normalize theta to be within [0, 360)
+    theta = theta % 360;
+    if (theta < 0)
+        {
+        theta += 360;
+        }
+
     Console.Clear(); //Clear the screen to apply colors
 
     //Assign Clock Hand values to multi dimensional matrix using a method
@@ -197,17 +213,17 @@ int[,] assignClockHand(int[,] shadingPattern, double width, double theta, double
         for (int j = 0; j < Console.WindowWidth / 2; j++)
         {
             //convert height and width to x and y cartesian plane
-            int x = j - 9;
-            int y = 9 - i;
+            int x = j - 9 - b;
+            int y = 9 - i - a;
 
             //checkes to see if cell is within the area of the square
-            if (x < 9 + b && x > -9 + b && y < 9 && y > -9)
+            if (x < 9 && x > -9 && y < 9 && y > -9)
             {
                 //Makes the clock hand
                 if (
-                    calculateHandShadingBounds(theta, width, x + b, y)
-                    && insideClockFace(x + b, y, length)
-                    && inCorrectQuadrant(theta, x + b, y)
+                    calculateHandShadingBounds(theta, width, x, y)
+                    && insideClockFace(x, y, length)
+                    && inCorrectQuadrant(theta, x, y)
                 )
                 {
                     shadingPattern[i, j] = 1;
@@ -232,7 +248,8 @@ int[,] assignClockHand(int[,] shadingPattern, double width, double theta, double
 // Checks to see if pixel goes past outer rim of Clock
 bool insideClockFace(int x, int y, double length)
 {
-    return Math.Sqrt(x * x + y * y) <= length;
+    // return Math.Sqrt(x * x + y * y) <= length;
+    return true;
 }
 
 //checks to see if pixel is in correct quadrant
@@ -274,6 +291,7 @@ bool inCorrectQuadrant(double theta, int x, int y)
 
     // Default return value - return false
     return false;
+    return true;
 }
 
 // Checks to see if a pixel is part of the clock hand
