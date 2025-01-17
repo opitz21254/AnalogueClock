@@ -20,7 +20,7 @@ while (b <= 11)
     double width = 1;
     double length = 5;
     int unitsInOneCycle = 60;
-    int colorIndex = 2;
+    int colorIndex = 3;
 
     //Assign minute hand values to matrix
     shadingPattern = assignClockHand(
@@ -39,7 +39,7 @@ while (b <= 11)
     width = 1;
     length = 8;
     unitsInOneCycle = 60;
-    colorIndex = 3;
+    colorIndex = 2;
 
     //Assign minute hand values to matrix
     shadingPattern = assignClockHand(
