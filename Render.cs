@@ -2,53 +2,68 @@
 
 
 int[,] shadingPattern = new int[Console.WindowHeight, Console.WindowWidth];
-// b moves x, a moves y in reverse
-int a = 0;
-int b = 0;
 
-while (b <= 20)
+// b moves x, a moves y in reverse
+int a = 10;
+int b = 10;
+
+while (b <= 11)
 {
     Console.Clear();
+    Console.ResetColor();
 
     //Assign Clock Face values to multi dimensional matrix using a method
     shadingPattern = assignClockFace(shadingPattern, a, b);
 
-    //Center
-    shadingPattern[9 + a, 9 + b] = 1;
-
-    Console.ResetColor();
-    // Console.Write("What is the width of the clock hand? ");
-    // double width = Convert.ToDouble(Console.ReadLine());
+    // Dynamically updates the minute hand (longest) baised on the computer's time
+    double timeUnit = DateTime.Now.Minute;
     double width = 1;
+    double length = 5;
+    int unitsInOneCycle = 60;
+    int colorIndex = 2;
 
-    Console.Write("What hour is it? ");
-    int hour = Convert.ToInt32(Console.ReadLine());
+    //Assign minute hand values to matrix
+    shadingPattern = assignClockHand(
+        shadingPattern,
+        timeUnit,
+        unitsInOneCycle,
+        width,
+        length,
+        a,
+        b,
+        colorIndex
+    );
 
-    //convert hour to theta
-    double theta = 90 - (30 * hour);
+    // Dynamically updates the second hand baised on the computer's time
+    timeUnit = DateTime.Now.Second;
+    width = 1;
+    length = 8;
+    unitsInOneCycle = 60;
+    colorIndex = 3;
 
-    // Console.Write("What is the length of the clock hand? (7 or less) ");
-    // double length = Convert.ToDouble(Console.ReadLine());
-    double length = 7;
+    //Assign minute hand values to matrix
+    shadingPattern = assignClockHand(
+        shadingPattern,
+        timeUnit,
+        unitsInOneCycle,
+        width,
+        length,
+        a,
+        b,
+        colorIndex
+    );
 
-
-    // Normalize theta to be within [0, 360)
-    theta = theta % 360;
-    if (theta < 0)
-        {
-        theta += 360;
-        }
-
-    Console.Clear(); //Clear the screen to apply colors
-
-    //Assign Clock Hand values to multi dimensional matrix using a method
-    shadingPattern = assignClockHand(shadingPattern, width, theta, length, a, b);
+    //Center
+    shadingPattern[9 + a, 9 + b] = 4;
 
     //runs the shading loop
     for (int i = 0; i < Console.WindowHeight; i++)
     {
+        // Divide `j` by 2 because each cell is two characters wide
         for (int j = 0; j <= Console.WindowWidth / 2 - 1; j++)
         {
+            //Move cursor to current position
+            Console.SetCursorPosition(j * 2, i);
             if (shadingPattern[i, j] == 0)
             {
                 //Sets color of non-shaded cells to blue
@@ -56,12 +71,32 @@ while (b <= 20)
                 Console.ForegroundColor = ConsoleColor.DarkBlue;
                 Console.Write(" .");
             }
-            else
+            else if (shadingPattern[i, j] == 1)
             {
                 //Sets color of shaded cells to Magenta
                 // Console.ResetColor();
                 Console.BackgroundColor = ConsoleColor.Magenta;
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("  ");
+            }
+            else if (shadingPattern[i, j] == 2)
+            {
+                //Sets color of shaded cells to Red
+                // Console.ResetColor();
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.Write("  ");
+            }
+            else if (shadingPattern[i, j] == 3)
+            {
+                //Sets color of shaded cells to Green
+                // Console.ResetColor();
+                Console.BackgroundColor = ConsoleColor.Green;
+                Console.Write("  ");
+            }
+            else
+            {
+                //Sets color of shaded cells to Yellow
+                // Console.ResetColor();
+                Console.BackgroundColor = ConsoleColor.Yellow;
                 Console.Write("  ");
             }
         }
@@ -85,7 +120,7 @@ while (b <= 20)
         }
     }
     Console.Clear();
-    b++;
+    // b++;
 }
 Console.ReadKey(true);
 
@@ -204,17 +239,35 @@ int[,] assignClockFace(int[,] shadingPattern, int a, int b)
 }
 
 //Assigns int 1 to pixels contained withing the hand of the clock
-int[,] assignClockHand(int[,] shadingPattern, double width, double theta, double length, int a, int b)
+int[,] assignClockHand(
+    int[,] shadingPattern,
+    double timeUnit,
+    int unitsInOneCycle,
+    double width,
+    double length,
+    int a,
+    int b,
+    int colorIndex
+)
 {
+    //convert time unit to theta
+    double theta = 90 - (360 * timeUnit / unitsInOneCycle);
+
+    // Normalize theta to be within [0, 360)
+    theta = theta % 360;
+    if (theta < 0)
+        theta += 360;
+
     //draws the clock hand for ANY hand
+    // i is equivelent to y and j is equivelent to x
     for (int i = 0; i < Console.WindowHeight; i++)
     {
-        // i is equivelent to y and j is equivelent to x
+        // Divide `j` by 2 because each cell is two characters wide
         for (int j = 0; j < Console.WindowWidth / 2; j++)
         {
             // Convert screen coordinates to Cartesian plane
             int x = j - 9 - b;
-            int y = 9 - i - a;
+            int y = 9 - i + a;
 
             // Ensure coordinates are within bounds of the clock face
             if (x >= -9 && x <= 9 && y >= -9 && y <= 9)
@@ -226,7 +279,7 @@ int[,] assignClockHand(int[,] shadingPattern, double width, double theta, double
                     && inCorrectQuadrant(theta, x, y)
                 )
                 {
-                    shadingPattern[i, j] = 1;
+                    shadingPattern[i, j] = colorIndex;
                 }
                 //break;
             }
@@ -248,8 +301,8 @@ int[,] assignClockHand(int[,] shadingPattern, double width, double theta, double
 // Checks to see if pixel goes past outer rim of Clock
 bool insideClockFace(int x, int y, double length)
 {
-    // return Math.Sqrt(x * x + y * y) <= length;
-    return true;
+    return Math.Sqrt(x * x + y * y) <= length;
+    // return true;
 }
 
 //checks to see if pixel is in correct quadrant
