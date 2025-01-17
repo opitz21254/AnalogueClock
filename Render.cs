@@ -212,12 +212,12 @@ int[,] assignClockHand(int[,] shadingPattern, double width, double theta, double
         // i is equivelent to y and j is equivelent to x
         for (int j = 0; j < Console.WindowWidth / 2; j++)
         {
-            //convert height and width to x and y cartesian plane
+            // Convert screen coordinates to Cartesian plane
             int x = j - 9 - b;
             int y = 9 - i - a;
 
-            //checkes to see if cell is within the area of the square
-            if (x < 9 && x > -9 && y < 9 && y > -9)
+            // Ensure coordinates are within bounds of the clock face
+            if (x >= -9 && x <= 9 && y >= -9 && y <= 9)
             {
                 //Makes the clock hand
                 if (
@@ -291,7 +291,6 @@ bool inCorrectQuadrant(double theta, int x, int y)
 
     // Default return value - return false
     return false;
-    return true;
 }
 
 // Checks to see if a pixel is part of the clock hand
